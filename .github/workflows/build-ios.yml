@@ -56,17 +56,40 @@ jobs:
         working-directory: apps/mobile-v2
         # --no-codesign: Sideloadly re-signs the artifact with the user's
         # Apple ID. No .p12 / provisioning profile secrets are required.
-        run: flutter build ipa --no-codesign --release --build-name=1.0.0 --build-number=${{ github.run_number }}
+        run: |
+          flutter build ipa --no-codesign --release --build-name=1.0.0 --build-number=${{ github.run_number }}
+          echo '--- build/ios tree ---'
+          find build/ios -maxdepth 3 -name '*.ipa' -o -name '*.app' | head -20
 
       - name: Collect artifact
         run: |
           set -e
           mkdir -p out
-          ipa=$(ls apps/mobile-v2/build/ios/ipa/*.ipa | head -1)
-          cp "$ipa" out/storyapp-ios-${{ github.run_number }}.ipa
-          echo "IPA ready: $(du -h out/*.ipa | cut -f1)"
-          # Quick sanity: the zip must contain a Payload/Runner.app
-          unzip -l out/*.ipa | grep -q 'Payload/Runner.app/' && echo 'IPA structure OK'
+          echo '--- looking for ipa ---'
+          find apps/mobile-v2/build/ios -name '*.ipa' -print || true
+          ipa=$(find apps/mobile-v2/build/ios -name '*.ipa' | head -1)
+          dest="out/storyapp-ios-${{ github.run_number }}.ipa"
+          if [ -n "$ipa" ]; then
+            cp "$ipa" "$dest"
+          else
+            # flutter --no-codesign can stop at a bare .app. Sideloadly needs
+            # a real IPA container: Payload/<name>.app zipped with no root dir.
+            echo '::warning::no .ipa from build; wrapping .app into one'
+            app=$(find apps/mobile-v2/build/ios -name '*.app' -type d | head -1)
+            if [ -z "$app" ]; then
+              echo '::error::neither .ipa nor .app found under build/ios'
+              find apps/mobile-v2/build/ios -maxdepth 4 | head -40
+              exit 1
+            fi
+            stage=$(mktemp -d)
+            mkdir -p "$stage/Payload"
+            cp -R "$app" "$stage/Payload/"
+            (cd "$stage" && zip -qr "$GITHUB_WORKSPACE/$dest" Payload)
+            rm -rf "$stage"
+          fi
+          ls -lh out/
+          unzip -l "$dest" | grep -E 'Payload/.+\.app/' | head -3
+          echo "IPA ready"
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4
