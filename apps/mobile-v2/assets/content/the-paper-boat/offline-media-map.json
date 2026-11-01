@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "contentVersion": "1.0.0",
+  "summary": {
+    "audio": 8,
+    "image": 3,
+    "remote": 0
+  },
+  "entries": [
+    {
+      "url": "media/cover.png",
+      "path": "media/cover.png",
+      "kind": "image",
+      "bytes": 15386,
+      "sha256": "8087f9b9472a4233b45d989fef8be8be4b1726bf1084cb8a634daefc8b3372cd"
+    },
+    {
+      "url": "media/ch1-p1.mp3",
+      "path": "media/ch1-p1.mp3",
+      "kind": "audio",
+      "bytes": 138240,
+      "sha256": "025da906dd5d77d61ba7980392b40f2d5889c5c6a84a834c32a7d707ac3f1cee"
+    },
+    {
+      "url": "media/ch1-p2.mp3",
+      "path": "media/ch1-p2.mp3",
+      "kind": "audio",
+      "bytes": 140976,
+      "sha256": "28f2a46f56eed2698d6c13d3df329269d7958bfeb524ba74e075b5523dd1c97d"
+    },
+    {
+      "url": "media/ch1-p3.mp3",
+      "path": "media/ch1-p3.mp3",
+      "kind": "audio",
+      "bytes": 128592,
+      "sha256": "9bc8a464d76959a30cfb611dc2777bebb13123fea8b3333c9b52f7881b38c59d"
+    },
+    {
+      "url": "media/ch1-p4.mp3",
+      "path": "media/ch1-p4.mp3",
+      "kind": "audio",
+      "bytes": 135648,
+      "sha256": "4e53655924b43ae1c260587e2b8a6dc7e727d2763e63ab8735c330d5db4caadf"
+    },
+    {
+      "url": "media/ch1-s1.png",
+      "path": "media/ch1-s1.png",
+      "kind": "image",
+      "bytes": 12239,
+      "sha256": "6979c5a468bdc7199c865311884936a0d685a7ddab0c2d2a1ec6c83b4fb9caf9"
+    },
+    {
+      "url": "media/ch2-p1.mp3",
+      "path": "media/ch2-p1.mp3",
+      "kind": "audio",
+      "bytes": 127440,
+      "sha256": "46b7489ae207dbea3a813d03abdc6d0766ae42dad5bf69fb131b8057334ba329"
+    },
+    {
+      "url": "media/ch2-p2.mp3",
+      "path": "media/ch2-p2.mp3",
+      "kind": "audio",
+      "bytes": 129168,
+      "sha256": "99a567eab735e2e6370a92d297fe27e0318e1ae1c90d7104834a74383922434a"
+    },
+    {
+      "url": "media/ch2-p3.mp3",
+      "path": "media/ch2-p3.mp3",
+      "kind": "audio",
+      "bytes": 115344,
+      "sha256": "09357dfb0f6af76cb0af1d9b71dc1b7338ed7ffc8ce0ccee686d1aa7156ab802"
+    },
+    {
+      "url": "media/ch2-p4.mp3",
+      "path": "media/ch2-p4.mp3",
+      "kind": "audio",
+      "bytes": 113184,
+      "sha256": "f9970e0fa7a748dad57d62b4952fa3847aeeeba288d17b3a2bd312a2a8eb6d1d"
+    },
+    {
+      "url": "media/ch2-s1.png",
+      "path": "media/ch2-s1.png",
+      "kind": "image",
+      "bytes": 12105,
+      "sha256": "6900c6a9e1afddcdeb55f4c4e2c94f21bc03f78c76bc626a2bfde53fb7f73efe"
+    }
+  ],
+  "missing": []
+}

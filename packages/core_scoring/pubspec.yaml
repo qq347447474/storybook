@@ -1,0 +1,16 @@
+name: core_scoring
+description: Quiz grading and retell scoring (pure functions, zero IO, no Flutter).
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  # Model types (QuizItem, Scene, Rubric) come from the pure-Dart content
+  # layer; core_content itself must stay Flutter-free (C2), so C3 holds here.
+  core_content:
+    path: ../core_content
+
+dev_dependencies:
+  test: ^1.26.0

@@ -1,0 +1,14 @@
+name: core_content
+description: Content parsing, validation, media resolution and chapter state machine (pure Dart, no Flutter).
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  # Pure-Dart SHA-256 for offline media integrity checks (docs/07 §2.3).
+  crypto: ^3.0.0
+
+dev_dependencies:
+  test: ^1.26.0

@@ -1,0 +1,4 @@
+<!-- Source: visual/prototype.html sprite symbol #i-waves. The sprite's inherited-colour keyword is substituted with #000000: flutter_svg does not resolve it, the paint colour arrives from the render layer (ColorFilter). Geometry untouched. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round">
+  <path d="M4 10v4M8 7v10M12 4v16M16 7v10M20 10v4"/>
+</svg>

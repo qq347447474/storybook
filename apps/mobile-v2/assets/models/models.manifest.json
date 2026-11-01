@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "tools/fetch_models.py",
+  "models": [
+    {
+      "name": "whisper-tiny.en",
+      "version": "tiny.en int8 (sherpa-onnx asr-models release)",
+      "sourceUrl": "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-whisper-tiny.en.tar.bz2",
+      "files": [
+        {
+          "file": "whisper-tiny.en/tiny.en-decoder.int8.onnx",
+          "sha256": "06c0e6ff6348d427e51839219d1c886c18cfdf411e629e33f5e1679bff9c1527",
+          "bytes": 89853865
+        },
+        {
+          "file": "whisper-tiny.en/tiny.en-encoder.int8.onnx",
+          "sha256": "0ce578b827c94a961aacb8fa14b02f096504b337e5c94be37c36238cbe3e8bc6",
+          "bytes": 12937772
+        },
+        {
+          "file": "whisper-tiny.en/tiny.en-tokens.txt",
+          "sha256": "306cd27f03c1a714eca7108e03d66b7dc042abe8c258b44c199a7ed9838dd930",
+          "bytes": 835554
+        }
+      ]
+    },
+    {
+      "name": "silero-vad",
+      "version": "silero_vad (sherpa-onnx asr-models release)",
+      "sourceUrl": "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/silero_vad.onnx",
+      "files": [
+        {
+          "file": "silero-vad/silero_vad.onnx",
+          "sha256": "9e2449e1087496d8d4caba907f23e0bd3f78d91fa552479bb9c23ac09cbb1fd6",
+          "bytes": 643854
+        }
+      ]
+    }
+  ]
+}

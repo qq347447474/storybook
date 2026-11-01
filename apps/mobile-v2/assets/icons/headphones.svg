@@ -1,0 +1,6 @@
+<!-- Source: visual/prototype.html sprite symbol #i-headphones. The sprite's inherited-colour keyword is substituted with #000000: flutter_svg does not resolve it, the paint colour arrives from the render layer (ColorFilter). Geometry untouched. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M4.5 13v-1a7.5 7.5 0 0 1 15 0v1"/>
+  <rect x="3.5" y="13" width="4" height="6.5" rx="1.6"/>
+  <rect x="16.5" y="13" width="4" height="6.5" rx="1.6"/>
+</svg>

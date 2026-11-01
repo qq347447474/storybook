@@ -1,0 +1,5 @@
+<!-- Source: visual/prototype.html sprite symbol #i-pause. The sprite's inherited-colour keyword is substituted with #000000: flutter_svg does not resolve it, the paint colour arrives from the render layer (ColorFilter). Geometry untouched. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+  <rect x="7" y="5" width="3.6" height="14" rx="1.6" fill="#000000"/>
+  <rect x="13.4" y="5" width="3.6" height="14" rx="1.6" fill="#000000"/>
+</svg>

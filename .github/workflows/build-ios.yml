@@ -1,0 +1,75 @@
+# Build the storyapp iOS package on every push to main.
+#
+# Signing: `--no-codesign` on purpose. The artifact is an unsigned .ipa that
+# Sideloadly (or AltStore) re-signs locally with a free Apple ID — a paid
+# Developer Program is not required to get a build onto a device.
+#
+# macOS runner minutes bill at 10x on private repos; the path filter keeps the
+# job off docs-only pushes.
+
+name: Build iOS IPA
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/mobile-v2/**'
+      - 'packages/**'
+      - '.github/workflows/build-ios.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: build-ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: flutter build ipa (unsigned)
+    runs-on: macos-14
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          # Same channel/revision family as the local machine (D:/F/flutter).
+          flutter-version: '3.47.8'
+          channel: stable
+          cache: true
+
+      - name: Show toolchain
+        run: |
+          flutter --version
+          xcodebuild -version
+          pod --version
+
+      - name: Resolve packages
+        working-directory: apps/mobile-v2
+        run: flutter pub get
+
+      - name: Build unsigned IPA
+        working-directory: apps/mobile-v2
+        # --no-codesign: Sideloadly re-signs the artifact with the user's
+        # Apple ID. No .p12 / provisioning profile secrets are required.
+        run: flutter build ipa --no-codesign --release --build-name=1.0.0 --build-number=${{ github.run_number }}
+
+      - name: Collect artifact
+        run: |
+          set -e
+          mkdir -p out
+          ipa=$(ls apps/mobile-v2/build/ios/ipa/*.ipa | head -1)
+          cp "$ipa" out/storyapp-ios-${{ github.run_number }}.ipa
+          echo "IPA ready: $(du -h out/*.ipa | cut -f1)"
+          # Quick sanity: the zip must contain a Payload/Runner.app
+          unzip -l out/*.ipa | grep -q 'Payload/Runner.app/' && echo 'IPA structure OK'
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: storyapp-ios-${{ github.run_number }}
+          path: out/*.ipa
+          if-no-files-found: error
+          retention-days: 30

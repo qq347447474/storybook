@@ -1,0 +1,4 @@
+<!-- Source: visual/prototype.html sprite symbol #i-spark. The sprite's inherited-colour keyword is substituted with #000000: flutter_svg does not resolve it, the paint colour arrives from the render layer (ColorFilter). Geometry untouched. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+  <path d="M12 2.8l1.9 6.1 6.3 2.1-6.3 2.1L12 19.2l-1.9-6.1L3.8 11l6.3-2.1z" fill="#000000"/>
+</svg>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96" role="img" aria-label="StoryApp paper boat mark">
+  <path d="M14 60 L82 60 L70 76 Q48 82 26 76 Z" fill="#5B4BD6"/>
+  <path d="M48 58 L48 20 L74 48 L48 58 Z" fill="#5B4BD6"/>
+  <path d="M42 58 L42 30 L22 52 L42 58 Z" fill="#B9AFF7"/>
+  <path d="M48 20 L48 58 M42 58 L22 52" stroke="#F7F1E4" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="74" cy="22" r="5" fill="#E8A15C"/>
+</svg>

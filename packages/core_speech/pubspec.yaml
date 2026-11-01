@@ -1,0 +1,16 @@
+name: core_speech
+description: Offline speech engine interface (sherpa-onnx FFI backend injected per platform).
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  # Transcript (text, durationMs, pauseGapsMs) is defined in core_scoring
+  # (docs/07 §3.2); SpeechEngine.stop() returns it directly (docs/07 §4).
+  core_scoring:
+    path: ../core_scoring
+
+dev_dependencies:
+  test: ^1.26.0

@@ -1,0 +1,9 @@
+# flutter/dart test configuration for apps/mobile.
+#
+# The `device` tag marks tests that need real hardware (native plugins,
+# microphone). They are skipped in the regular run (skip: true in the test
+# bodies) and executed on a device with:
+#   flutter test --run-skipped test/sherpa_device_test.dart
+tags:
+  device:
+    timeout: 5m
