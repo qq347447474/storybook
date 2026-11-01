@@ -25,7 +25,9 @@ concurrency:
 jobs:
   build:
     name: flutter build ipa (unsigned)
-    runs-on: macos-14
+    # macos-latest has the widest runner pool; the job is I/O bound (pub get +
+    # xcodebuild) and benefits more from allocation than from a pinned image.
+    runs-on: macos-latest
     timeout-minutes: 60
 
     steps:
