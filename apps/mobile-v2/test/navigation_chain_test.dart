@@ -4,9 +4,9 @@
 /// routes (the bug: scope sat below the Navigator -> the first push hit
 /// 'scope != null') and that copy renders via t() - never raw keys.
 ///
-/// The bundled-media fix (5e0e147) is exercised on the same path: the
-/// real DefaultMediaResolver resolves the cover through the asset-key
-/// branch.
+/// The shelf now ships **no built-in book**, so the fixture seeds a download
+/// cache (`storyapp_cache/the-paper-boat/pack.json`) before the bootstrap —
+/// the exact channel "更新书本" fills, and the one `_assemble` reads.
 library;
 
 import 'dart:io';
@@ -17,15 +17,75 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:storyapp/i18n/app_localizations.dart';
 import 'package:storyapp/main.dart';
 
+/// Minimal schema-valid pack the real parser accepts. One chapter is enough
+/// to walk S0 -> S1 -> S2.
+const String _cachedPack = '''
+{
+  "schemaVersion": 1,
+  "contentVersion": "1.1.0",
+  "minAppVersion": "1.0.0",
+  "locales": {"content": ["en"], "gloss": ["zh-Hans", "en"], "defaultGloss": "zh-Hans"},
+  "books": [{
+    "id": "the-paper-boat",
+    "title": "The Paper Boat",
+    "blurb": {"zh-Hans": "一只纸船。", "en": "A paper boat."},
+    "series": {"id": "s1", "name": "Short Stories", "order": 1},
+    "level": {"cefr": "A2", "wordCount": 60, "avgSentenceLen": 6, "ttr": 0.8,
+              "newWordDensity": 0.1, "targetWpm": 100},
+    "attribution": {"author": "Test", "illustrator": "Test", "license": "CC BY 4.0",
+                    "generator": "human", "sourceNote": "fixture"},
+    "cover": {"url": "media/cover.png", "aspect": 1.5,
+              "alt": {"en": "A girl at a window", "zh-Hans": "窗边的女孩"}},
+    "chapters": [{
+      "id": "ch1", "order": 1, "title": "One", "available": true, "estimatedMinutes": 5,
+      "reading": [{
+        "id": "ch1-p1", "text": "One sentence.",
+        "audio": {"url": "media/ch1-p1.mp3", "durationMs": 1200,
+                  "sentences": [{"text": "One sentence.", "startMs": 0, "endMs": 1200}]}
+      }],
+      "vocabulary": [],
+      "quiz": [],
+      "retell": {
+        "rubric": {"minWords": 20, "maxSeconds": 60,
+                   "conceptWeight": 0.6, "fluencyWeight": 0.2, "completenessWeight": 0.2,
+                   "wpmTargetRange": [70, 120]},
+        "scenes": [{
+          "id": "ch1-scene1", "order": 1,
+          "image": {"url": "media/ch1-s1.svg", "alt": {"en": "a scene", "zh-Hans": "场景"}},
+          "prompt": "Describe it.",
+          "concepts": [{"id": "c1", "label": {"en": "boat", "zh-Hans": "船"},
+                        "terms": ["boat"], "required": true}],
+          "hint1": {"zh-Hans": "提示", "en": "hint"},
+          "hint2": {"zh-Hans": "提示", "en": "hint"},
+          "suggestedAnswer": "It shows a boat.",
+          "targetWordCount": 20
+        }]
+      }
+    }]
+  }]
+}
+''';
+
 void main() {
   late Directory tmp;
 
   setUp(() {
     tmp = Directory.systemTemp.createTempSync('nav_chain_test');
+    // Seed the download cache exactly like "更新书本" leaves it: a book
+    // directory with its pack.json. The bootstrap merges this into the shelf.
+    final Directory bookDir =
+        Directory('${tmp.path}/storyapp_cache/the-paper-boat')
+          ..createSync(recursive: true);
+    File('${bookDir.path}/pack.json').writeAsStringSync(_cachedPack);
   });
 
   tearDown(() {
-    if (tmp.existsSync()) tmp.deleteSync(recursive: true);
+    // The real bootstrap opens a player and cache files; on Windows those
+    // handles can outlive the test body by a tick and lock the temp tree.
+    // The directory is throwaway either way.
+    try {
+      if (tmp.existsSync()) tmp.deleteSync(recursive: true);
+    } on FileSystemException catch (_) {}
   });
 
   testWidgets('S0 -> push S1 -> push S2: L10nScope resolves on every route',
@@ -59,10 +119,9 @@ void main() {
     expect(find.text('The Paper Boat'), findsOneWidget);
     expect(find.text('library.books'), findsNothing,
         reason: 'copy must not leak raw keys');
-    // Bundled cover goes through the assetKey branch (5e0e147) on the
-    // real resolver path.
-    final Image cover = tester.widget<Image>(find.byType(Image).first);
-    expect(cover.image, isA<AssetImage>());
+    // The seeded cache book is listed (and therefore deletable) — the shelf
+    // no longer hardcodes a bundled title.
+    expect(find.byKey(const Key('library-book-the-paper-boat')), findsOneWidget);
 
     // S0 -> S1 via a real Navigator.push. Before the fix this threw
     // 'L10nScope is missing above this context'.

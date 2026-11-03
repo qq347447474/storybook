@@ -49,18 +49,13 @@ void main() {
 /// error scaffolds below) so those call sites stay on the design token.
 const Color _appBackground = AppColors.paper;
 
-/// Temporary dev entry assets for the bundled sample pack. The library
-/// screen lists whatever the repository loads; these keys stay until the
-/// pack channel is productised (data paths, not per-book logic).
-const String _devPackAsset = 'assets/content/the-paper-boat/pack.json';
-
-const String _devMapAsset =
-    'assets/content/the-paper-boat/offline-media-map.json';
-
-/// Production bundle prefix for bundled content media (NOT a dev-only
-/// value): offline-map paths like `media/cover.png` are content-relative and
-/// become full asset keys as `_bundleAssetPrefix + path` — joined in exactly
-/// one place, inside DefaultMediaResolver (T7d-2). Historically misnamed
+/// The app ships **no built-in book**: the shelf starts empty and every title
+/// comes from "设置 -> 更新书本" (the download cache under `storyapp_cache/`).
+/// The empty shelf guides the learner there.
+///
+/// Offline-map paths like `media/cover.png` are content-relative and become
+/// full asset keys as `_bundleAssetPrefix + path` — joined in exactly one
+/// place, inside DefaultMediaResolver (T7d-2). Historically misnamed
 /// `_devBundledPrefix`; renamed for clarity.
 const String _bundleAssetPrefix = 'assets/content/the-paper-boat/';
 
@@ -242,11 +237,19 @@ class _AppBootstrapState extends State<AppBootstrap> {
       appVersion: appVersion,
       readAsset: readAsset,
     );
-    final PackLoadResult loaded = await repo.loadFromAsset(_devPackAsset);
-    if (loaded is PackInvalid) {
-      throw StateError('pack failed to load: ${loaded.errors}');
-    }
-    ContentPack pack = (loaded as PackOk).pack;
+    // No bundled sample: the shelf starts empty and is filled only by the
+    // download cache below ("设置 -> 更新书本").
+    ContentPack pack = ContentPack(
+      schemaVersion: 1,
+      contentVersion: '1.0.0',
+      minAppVersion: '0.0.0',
+      locales: const Locales(
+        content: <String>['en'],
+        gloss: <String>['zh-Hans', 'en'],
+        defaultGloss: 'zh-Hans',
+      ),
+      books: const <Book>[],
+    );
 
     // Merge books from download cache (settings > update books)
     final Set<String> cachedBookIds = <String>{};
@@ -268,7 +271,10 @@ class _AppBootstrapState extends State<AppBootstrap> {
               packFile.writeAsStringSync(jsonEncode(repaired));
             }
 
-            final cachedResult = await repo.loadFromFile(packFile.path);
+            // Parse the bytes we already hold: a second async file read here
+            // would stall the bootstrap under a test's fake clock, and the
+            // text is identical to what is on disk at this point.
+            final cachedResult = repo.loadFromJsonText(jsonEncode(repaired));
             if (cachedResult is! PackOk) {
               // The cache cannot be rendered. Drop it so "更新书本" offers the
               // download again instead of leaving a permanently dead row.
@@ -299,17 +305,12 @@ class _AppBootstrapState extends State<AppBootstrap> {
       }
     } catch (_) {}
 
-    final Book book = pack.books.first;
+    // Zero-book safe: the shelf may legitimately be empty on first launch.
+    // Progress and settings hang off the first book's id when there is one;
+    // with none they share an empty-key document that nothing writes to.
+    final Book? book = pack.books.isEmpty ? null : pack.books.first;
 
     OfflineMediaMap map = OfflineMediaMap.empty();
-    try {
-      final String raw = await rootBundle.loadString(_devMapAsset);
-      map = OfflineMediaMap.fromJson(
-        json.decode(raw) as Map<String, dynamic>,
-      );
-    } on Exception catch (_) {
-      // No map yet (media not generated): fall back to cache/network only.
-    }
 
     final Directory support = await getApplicationSupportDirectory();
     final MediaResolver resolver = DefaultMediaResolver(
@@ -330,15 +331,18 @@ class _AppBootstrapState extends State<AppBootstrap> {
 
     final ProgressStore progressStore =
         FileProgressStore(directory: support.path);
+    // The progress document is shared per pack; with no book there is nothing
+    // to name it after, and the empty key is simply never written.
+    final String packKey = book?.id ?? '';
     final AppSettings settings = AppSettings(
       store: progressStore,
-      packId: book.id,
+      packId: packKey,
       appVersion: appVersion,
     );
     await settings.load();
 
     // Progress-aware book/chapter states for S0/S1.
-    final ProgressDoc doc = await progressStore.load(book.id);
+    final ProgressDoc doc = await progressStore.load(packKey);
     final Map<String, bool> bookStarted = <String, bool>{};
     final Map<String, Map<String, ChapterStage>> chapterStages =
         <String, Map<String, ChapterStage>>{};
@@ -370,7 +374,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
       progressStore: progressStore,
       bookStarted: bookStarted,
       chapterStages: chapterStages,
-      bookId: book.id,
+      bookId: packKey,
       defaultGloss: pack.locales.defaultGloss,
       contentVersion: pack.contentVersion,
       cachedBookIds: cachedBookIds,
@@ -433,7 +437,10 @@ class _AppBootstrapState extends State<AppBootstrap> {
       builder: (_) => SettingsScreen(
         settings: graph.settings,
         glossLocales: graph.pack.locales.gloss,
-        attribution: graph.pack.books.first.attribution,
+        // Optional: with an empty shelf there is no active pack to credit.
+        attribution: graph.pack.books.isEmpty
+            ? null
+            : graph.pack.books.first.attribution,
         l10n: null,
         onBookDownloaded: () {
           // Trigger pack reload after downloading books

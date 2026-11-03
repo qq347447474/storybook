@@ -75,6 +75,14 @@ class JsonContentRepository implements ContentRepository {
     return _loadBytes(bytes);
   }
 
+  /// Parse pack JSON that the caller has already read.
+  ///
+  /// The cache-refresh path reads `pack.json` synchronously (to normalise and
+  /// write it back); re-opening the file through [loadFromFile] would be a
+  /// second I/O whose future never completes under a test's fake clock. This
+  /// entry point keeps that path fully synchronous.
+  PackLoadResult loadFromJsonText(String text) => parsePack(text, appVersion: appVersion);
+
   PackLoadResult _loadBytes(Uint8List bytes) {
     String text;
     try {

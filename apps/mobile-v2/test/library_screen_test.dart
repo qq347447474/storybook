@@ -162,7 +162,7 @@ Future<void> switchToList(WidgetTester tester) async {
 }
 
 void main() {
-  testWidgets('bundled cover renders via Image.asset, not the placeholder',
+  testWidgets('bundled cover loads by asset key and degrades to alt on miss',
       (WidgetTester tester) async {
     await pumpShelf(
       tester,
@@ -175,8 +175,10 @@ void main() {
         reason: 'bundled origin loads by asset key (T7d-2)');
     expect((image.image as AssetImage).assetName,
         'assets/content/the-paper-boat/media/cover.png');
-    expect(find.text('A girl at a window'), findsNothing,
-        reason: 'no alt placeholder on a successful bundled hit');
+    // The sample book no longer ships in the bundle, so the decode misses and
+    // the cover plate must fall back to its alt label rather than break.
+    expect(find.text('A girl at a window'), findsOneWidget,
+        reason: 'missing bundled bytes degrade to the alt placeholder');
   });
 
   testWidgets('shelf shows eyebrow, heading, meta, summary and start CTA',
@@ -264,18 +266,27 @@ void main() {
     expect(find.text('Start reading'), findsNothing);
   });
 
-  testWidgets('empty pack shows the empty shelf and no CTA',
+  testWidgets('empty pack guides to updating books instead of shipping content',
       (WidgetTester tester) async {
-    await pumpShelf(tester, books: const <Book>[]);
+    bool openedSettings = false;
+    await pumpShelf(
+      tester,
+      books: const <Book>[],
+      onOpenSettings: () => openedSettings = true,
+    );
 
     expect(find.byKey(const Key('library-empty')), findsOneWidget);
-    expect(
-        find.text('Your shelf is waiting for its first book'), findsOneWidget);
-    expect(find.text('All available offline'), findsOneWidget);
+    expect(find.text('Your shelf is empty'), findsOneWidget);
+    expect(find.text('Download to read offline'), findsOneWidget);
     expect(find.byType(AppIllustration), findsOneWidget, reason: 'brand mark');
-    expect(find.byType(FilledButton), findsNothing,
-        reason: 'an empty shelf has nothing to start');
-    expect(find.text('Start reading'), findsNothing);
+    // The shelf starts empty and is filled only by "Update Books": the CTA
+    // and the settings bypass are the two ways there, so both must be live.
+    final Finder cta = find.byKey(const Key('library-empty-cta'));
+    expect(cta, findsOneWidget);
+    expect(find.text('Update Books'), findsWidgets);
+    await tester.tap(cta);
+    await tester.pumpAndSettle();
+    expect(openedSettings, isTrue);
   });
 
   testWidgets('cover keeps its aspect ratio and degrades to alt text + retry',

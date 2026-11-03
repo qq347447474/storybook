@@ -111,11 +111,18 @@ class EmptyShelf extends StatelessWidget {
     required this.title,
     required this.body,
     required this.chipLabel,
+    this.ctaLabel,
+    this.onCta,
   });
 
   final String title;
   final String body;
   final String chipLabel;
+
+  /// Optional primary action under the chip — the empty shelf's whole job is
+  /// to send the learner where books come from ("更新书本").
+  final String? ctaLabel;
+  final VoidCallback? onCta;
 
   /// `.library-empty { min-height: 470px; border-radius: var(--r-xl) }` on the
   /// 20 dp token corner.
@@ -200,6 +207,31 @@ class EmptyShelf extends StatelessWidget {
                     fit: BoxFit.scaleDown,
                     child: AppChip(chipLabel, icon: 'download'),
                   ),
+                  if (ctaLabel != null && onCta != null) ...<Widget>[
+                    const SizedBox(height: 20),
+                    // Same 52 dp stadium CTA as the dock (design-spec §5.7):
+                    // one clear way out of the empty shelf.
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 220),
+                      child: SizedBox(
+                        height: 52,
+                        child: FilledButton(
+                          key: const Key('library-empty-cta'),
+                          onPressed: onCta,
+                          style: FilledButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: AppColors.onPrimary,
+                            shape: const StadiumBorder(),
+                            elevation: 0,
+                            textStyle: AppTypography.label.copyWith(
+                              letterSpacing: 0,
+                            ),
+                          ),
+                          child: Text(ctaLabel!),
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),

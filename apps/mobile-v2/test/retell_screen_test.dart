@@ -691,7 +691,9 @@ void main() {
     await tester.pumpAndSettle();
     final Image image = tester.widget<Image>(find.byType(Image).first);
     expect(image.image, isA<AssetImage>());
-    expect(find.byKey(const Key('retell-image-placeholder')), findsNothing);
+    // The sample book no longer ships in the bundle: the asset-key branch is
+    // still the one taken (T7d-2), and a decode miss degrades to the plate.
+    expect(find.byKey(const Key('retell-image-placeholder')), findsOneWidget);
   });
 
   test('same transcript scores identically every time (A4 deterministic)', () {

@@ -98,10 +98,9 @@ flutter:
   # (single sources of truth; never edit the copies by hand).
   assets:
     - assets/i18n/
-    # Flutter directory assets are NOT recursive: declare each level
-    # explicitly, or nothing under the subdirectory is bundled.
-    - assets/content/the-paper-boat/
-    - assets/content/the-paper-boat/media/
+    # No bundled book: titles come from "更新书本" downloads only. The
+    # content/ tree stays as source material for tools; nothing under
+    # assets/content/ is declared, so none of it ships in the app bundle.
     # Icon set: one file per symbol from the visual/prototype.html sprite
     # (design-spec §2.7). Flat directory, so one entry covers all 34.
     - assets/icons/

@@ -328,6 +328,11 @@ class ReadingPlayback extends ChangeNotifier {
     _disposed = true;
     _stateSub?.cancel();
     _positionSub?.cancel();
+    // Leaving the screen ends the narration. The player is shared with the
+    // other steps, so stopping it here is exactly the contract: no background
+    // playback after the learner walks away (ClipWindow.dispose does the same
+    // for the vocabulary speakers).
+    unawaited(player.stop());
     super.dispose();
   }
 }

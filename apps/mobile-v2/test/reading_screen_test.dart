@@ -58,6 +58,7 @@ class FakeAudioPlayerService implements AudioPlayerService {
   Duration? lastSeek;
   double speed = 1.0;
   int loadCalls = 0;
+  int stopCalls = 0;
   bool failLoad = false;
 
   void emitState(AudioPlaybackState s) {
@@ -126,7 +127,10 @@ class FakeAudioPlayerService implements AudioPlayerService {
   Future<void> setSpeed(double speed) async => this.speed = speed;
 
   @override
-  Future<void> stop() async => emitState(AudioPlaybackState.idle);
+  Future<void> stop() async {
+    stopCalls++;
+    emitState(AudioPlaybackState.idle);
+  }
 
   @override
   Future<void> dispose() async {
@@ -477,6 +481,32 @@ void main() {
     );
     expect(audio.state, AudioPlaybackState.paused);
     expect(audio.loadedAsset, '${_assetPrefix}media/ch1-p2.mp3');
+  });
+
+  testWidgets('leaving the reading screen stops the narration (no background)',
+      (WidgetTester tester) async {
+    final l10n = (await tester.runAsync(() => AppLocalizations.load('en')))!;
+    final (controller, _) = await makeController(tmp);
+    final FakeAudioPlayerService audio = FakeAudioPlayerService();
+    await pumpScreen(
+      tester,
+      controller: controller,
+      resolver: FakeMediaResolver(),
+      audio: audio,
+      l10n: l10n,
+    );
+
+    await tester.tap(playButton());
+    await tester.pumpAndSettle();
+    expect(audio.state, AudioPlaybackState.playing);
+    final int stopsWhilePlaying = audio.stopCalls;
+
+    // Pop the screen: the shared player must be stopped on the way out so the
+    // narration does not keep talking in the background.
+    await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
+    await tester.pumpAndSettle();
+    expect(audio.stopCalls, greaterThan(stopsWhilePlaying));
+    expect(audio.state, AudioPlaybackState.idle);
   });
 
   testWidgets('missing audio disables the player but keeps the body readable',

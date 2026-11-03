@@ -124,6 +124,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
                           title: l10n.t('library.empty'),
                           body: l10n.t('library.emptyBody'),
                           chipLabel: l10n.t('library.emptyChip'),
+                          ctaLabel: l10n.t('library.emptyCta'),
+                          onCta: widget.onOpenSettings,
                         ),
                       ],
                     )
@@ -166,7 +168,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
               ],
             ),
           ),
-          if (widget.onOpenSettings != null && !empty)
+          // The empty shelf still needs the settings bypass: it is the only
+          // way to "更新书本" and fill the shelf.
+          if (widget.onOpenSettings != null)
             Padding(
               padding: const EdgeInsets.only(left: LibraryScreen.headGap),
               child: _SettingsBypass(
